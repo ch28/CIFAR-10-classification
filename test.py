@@ -6,8 +6,6 @@
 #-----------------------------------------------------------------------------------+
 #                             *** Open Source Code ***                              |
 #-----------------------------------------------------------------------------------+
-import numpy as np
-
 import tensorflow as tf
 from keras.layers import Input, Dense, Activation, Layer, Dropout
 from keras.models import Model
@@ -27,7 +25,6 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 tf.reset_default_graph()
 
-#40%
 config = tf.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.2
 session = tf.Session(config=config)
@@ -37,8 +34,9 @@ session = tf.Session(config=config)
 epochs = 15
 batch_size = 20
 lr = 1e-3
-loss_mode = 'mse' # 'mae' or 'mse' or 'cross_entropy'
+loss_mode = 'cross_entropy' # 'mae' or 'mse' or 'cross_entropy'
 
+# data sampling
 (x_train1,y_train1), (x_test1,y_test1) = cifar10.load_data()
  
 x_train1 = x_train1.reshape(x_train1.shape[0],-1)/255.0
@@ -58,7 +56,6 @@ for i in range(y_train1.shape[0]):
     if y_train1[i][0] == 3:
         x_train[index] = x_train1[i]
         index = index + 1
-print(index)
 for i in range(y_train1.shape[0]):
     if y_train1[i][0] != 3:
         x_train[index] = x_train1[i]
@@ -71,7 +68,6 @@ for i in range(y_test1.shape[0]):
     if y_test1[i][0] == 3:
         x_test[index] = x_test1[i]
         index = index + 1
-print(index)
 for i in range(y_test1.shape[0]):
     if y_test1[i][0] != 3:
         x_test[index] = x_test1[i]
@@ -88,7 +84,7 @@ idx = np.random.permutation(x_test.shape[0])
 x_test = x_test[idx]
 y_test = y_test[idx]
 
-
+# Create NN
 def my_loss(y_true, y_pred):
     # cross entropy loss function
     y_true = 1.0 * y_true
@@ -196,9 +192,9 @@ checkpoint = ModelCheckpoint(filepath=filepath,
 
 history = LossHistory()
 
-# callbacks = [checkpoint, history, TensorBoard(log_dir = path)]
 callbacks = [history, TensorBoard(log_dir = path)]
 
+# Train
 NN_net.fit_generator(generator=generator(batch_size, x_train, y_train), 
                           steps_per_epoch=int(x_train.shape[0]/batch_size), 
                           epochs=epochs, 
@@ -209,9 +205,8 @@ NN_net.fit_generator(generator=generator(batch_size, x_train, y_train),
 
 outfile = 'result/%s_model.h5' % file
 NN_net.save_weights(outfile)
-#Testing data
 
-# outfile = 'result/%s_model.h5' % file
+#Testing data
 NN_net.load_weights(outfile)
 
 tStart = time.time()
@@ -221,6 +216,6 @@ print ("It cost %f sec" % ((tEnd - tStart)/x_test.shape[0]))
 
 y_hat = (np.sign(y_hat - 0.5) + 1)/2
 
-print(1- np.sum(np.abs(y_hat - y_test))/y_test.shape[0])
+print('Accuracy is', 1- np.sum(np.abs(y_hat - y_test))/y_test.shape[0])
 
 
