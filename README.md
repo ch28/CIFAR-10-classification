@@ -3,7 +3,9 @@ A demo code for classification task of CIFAR-10 dataset
 
 # Environment Requirement
 python == 3.5.2
+
 tensorflow-gpu == 1.12.0
+
 keras == 2.2.4
 
 # Guide
