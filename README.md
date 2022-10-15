@@ -17,5 +17,7 @@ For test set, the numbers of samples of the two categories are both 1000.
 
 'no cat' samples are uniformly randomly selected from the samples of categories which are not 'cat'.
 
+You may choose different loss function ('MAE' or 'MSE' or 'cross_entropy') to observe the change of accuracy of classification of neural network.
+
 # Command
 python test.py
